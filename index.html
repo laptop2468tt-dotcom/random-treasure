@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>كنز عشوائي</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0015ff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            direction: rtl;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        button {
+            padding: 12px 22px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px 0;
+            background: #ff5252;
+            color: white;
+        }
+
+        .emoji {
+            font-size: 80px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .counter {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>تبرع بالكنز 🎁</h2>
+
+    <button onclick="showRandomItem()">إظهار الكنز</button>
+
+    <div id="item" class="emoji"></div>
+
+    <button onclick="donate()">تبرع بالكنز</button>
+
+    <div class="counter">
+        عدد التبرعات: <span id="count">0</span>
+    </div>
+</div>
+
+<script>
+    let count = localStorage.getItem("donations") || 0;
+    document.getElementById("count").innerText = count;
+
+    function showRandomItem() {
+        const items = ["🥚", "🥤"];
+        const randomItem = items[Math.floor(Math.random() * items.length)];
+
+        const itemDiv = document.getElementById("item");
+        itemDiv.innerText = randomItem;
+        itemDiv.style.display = "block";
+    }
+
+    function donate() {
+        count++;
+        localStorage.setItem("donations", count);
+        document.getElementById("count").innerText = count;
+    }
+</script>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "API_KEY",
+    authDomain: "PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "PROJECT_ID",
+    storageBucket: "PROJECT_ID.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+  const counterRef = database.ref("donations");
+
+  // تحديث العداد لكل الزوار
+  counterRef.on("value", (snapshot) => {
+    document.getElementById("count").innerText = snapshot.val();
+  });
+
+  function donate() {
+    counterRef.transaction((current) => {
+      return (current || 0) + 1;
+    });
+  }
+</script>
+
+</body>
+</html>
